@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Sobre - Gerenciador de Tarefas{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Sobre esta Aplicação</h2>
+</div>
+
+<div class="about-container">
+    <div class="about-section">
+        <h3>🎯 Objetivo</h3>
+        <p>
+            Esta é uma aplicação de exemplo criada para demonstrar os conceitos fundamentais
+            do framework Flask em Python. Ela serve como material de aprendizado para 
+            desenvolvedores que estão começando com desenvolvimento web em Python.
+        </p>
+    </div>
+
+    <div class="about-section">
+        <h3>🛠️ Tecnologias Utilizadas</h3>
+        <ul class="tech-list">
+            <li><strong>Backend:</strong> Flask (Python)</li>
+            <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript</li>
+            <li><strong>Template Engine:</strong> Jinja2</li>
+            <li><strong>API:</strong> RESTful endpoints com JSON</li>
+        </ul>
+    </div>
+
+    <div class="about-section">
+        <h3>📚 Conceitos Demonstrados</h3>
+        <div class="concepts-grid">
+            <div class="concept-card">
+                <h4>Rotas e Views</h4>
+                <p>Demonstração de rotas GET e POST, redirecionamentos e renderização de templates</p>
+            </div>
+            <div class="concept-card">
+                <h4>Templates Jinja2</h4>
+                <p>Herança de templates, blocos, filtros customizados e estruturas de controle</p>
+            </div>
+            <div class="concept-card">
+                <h4>Arquivos Estáticos</h4>
+                <p>Organização e uso de CSS e JavaScript em aplicações Flask</p>
+            </div>
+            <div class="concept-card">
+                <h4>API REST</h4>
+                <p>Endpoints JSON para operações CRUD (Create, Read, Update, Delete)</p>
+            </div>
+            <div class="concept-card">
+                <h4>Interatividade</h4>
+                <p>Comunicação JavaScript + Flask via fetch API sem recarregar a página</p>
+            </div>
+            <div class="concept-card">
+                <h4>Estrutura MVC</h4>
+                <p>Separação de responsabilidades entre lógica, apresentação e dados</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h3>📁 Estrutura do Projeto</h3>
+        <pre class="code-block">
+flask-app/
+│
+├── app.py                 # Aplicação principal
+├── requirements.txt       # Dependências
+│
+├── templates/            # Templates HTML
+│   ├── base.html         # Template base
+│   ├── index.html        # Página inicial
+│   ├── adicionar.html    # Formulário
+│   └── sobre.html        # Esta página
+│
+└── static/              # Arquivos estáticos
+    ├── css/
+    │   └── style.css    # Estilos
+    └── js/
+        └── script.js    # JavaScript
+        </pre>
+    </div>
+
+    <div class="about-section highlight-section">
+        <h3>🚀 Como Executar</h3>
+        <ol class="steps-list">
+            <li>Instale as dependências: <code>pip install -r requirements.txt</code></li>
+            <li>Execute a aplicação: <code>python app.py</code></li>
+            <li>Acesse no navegador: <code>http://localhost:5000</code></li>
+        </ol>
+    </div>
+</div>
+
+{% endblock %}

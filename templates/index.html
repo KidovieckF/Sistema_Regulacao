@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Início - Gerenciador de Tarefas{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Minhas Tarefas</h2>
+    <div id="estatisticas" class="stats-container">
+        <div class="stat-card">
+            <span class="stat-label">Total</span>
+            <span class="stat-value" id="stat-total">-</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Concluídas</span>
+            <span class="stat-value" id="stat-concluidas">-</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Pendentes</span>
+            <span class="stat-value" id="stat-pendentes">-</span>
+        </div>
+    </div>
+</div>
+
+{% if tarefas %}
+    <div class="tasks-grid">
+        {% for tarefa in tarefas %}
+        <div class="task-card {% if tarefa.concluida %}task-completed{% endif %}" data-task-id="{{ tarefa.id }}">
+            <div class="task-header">
+                <h3>{{ tarefa.titulo }}</h3>
+                <span class="task-date">{{ tarefa.data|formatar_data }}</span>
+            </div>
+            <p class="task-description">{{ tarefa.descricao }}</p>
+            <div class="task-actions">
+                <button class="btn btn-success btn-concluir" onclick="toggleTarefa({{ tarefa.id }})">
+                    {% if tarefa.concluida %}
+                        ✓ Concluída
+                    {% else %}
+                        ○ Marcar como concluída
+                    {% endif %}
+                </button>
+                <button class="btn btn-danger btn-deletar" onclick="deletarTarefa({{ tarefa.id }})">
+                    🗑️ Deletar
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <p>📭 Nenhuma tarefa cadastrada ainda.</p>
+        <a href="{{ url_for('adicionar') }}" class="btn btn-primary">Adicionar primeira tarefa</a>
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Carregar estatísticas ao carregar a página
+    window.addEventListener('DOMContentLoaded', carregarEstatisticas);
+</script>
+{% endblock %}
