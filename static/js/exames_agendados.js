@@ -2,6 +2,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     
     
+    // ---- Clique em linhas clicáveis (redirecionar para /agendar/<id>) ----
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', function() {
+            const href = this.dataset.href;
+            if (href) {
+                window.location.href = href;
+            }
+        });
+    });
+
     // ---- Alternância entre Lista e Resumo ----
     const viewButtons = document.querySelectorAll('.view-toggle button');
     const views = {

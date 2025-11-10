@@ -1,64 +1,235 @@
 {% extends "base.html" %}
 {% block title %}Agendar - {{ pedido.nome_paciente }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .agendamento-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        border-radius: 8px;
+    }
+
+    .agendamento-header h2 {
+        margin: 0 0 10px 0;
+        font-size: 2em;
+    }
+
+    .agendamento-header p {
+        margin: 5px 0;
+        font-size: 1.1em;
+    }
+
+    .info-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        margin-bottom: 30px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .info-box p {
+        margin: 0;
+        font-size: 0.95em;
+    }
+
+    .info-box strong {
+        color: #667eea;
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .historico-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        margin-bottom: 30px;
+    }
+
+    .historico-section h4 {
+        color: #333;
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .list-group-item {
+        border-left: 3px solid #667eea;
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+        border-left-color: #764ba2;
+    }
+
+    .list-group-item strong {
+        color: #667eea;
+    }
+
+    .form-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+
+    .form-section h4 {
+        color: #333;
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 10px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        padding: 10px 30px;
+        font-weight: 600;
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border: 1px solid #667eea;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+        color: #764ba2;
+        transform: translateX(-3px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container main-content">
-    <div class="page-header">
-        <h2>📞 Agendamento de Exame</h2>
-        <p>Paciente: <strong>{{ pedido.nome_paciente }}</strong></p>
+    <a href="/exames_agendados" class="back-link">← Voltar à Lista</a>
+
+    <div class="agendamento-header">
+        <h2 style="padding-left: 30px;">Agendamento de Exame</h2>
+        <p style="padding-left: 30px;">Paciente: <strong>{{ pedido.nome_paciente }}</strong></p>
     </div>
 
     <div class="info-box">
-        <p><strong>Telefone:</strong> {{ pedido.telefone }}</p>
-        <p><strong>Exame:</strong> {{ pedido.exame_nome }}</p>
-        <p><strong>Unidade:</strong> {{ pedido.unidade_nome }}</p>
-        <p><strong>Prioridade:</strong> {{ pedido.prioridade }}</p>
-        <p><strong>Status atual:</strong> {{ pedido.status_agendamento or 'Pendente' }}</p>
-        <p><strong>Tentativas:</strong> {{ pedido.tentativas_contato }}/3</p>
+        <div>
+            <strong>Telefone:</strong>
+            {{ pedido.telefone }}
+        </div>
+        <div>
+            <strong>Exame:</strong>
+            {{ pedido.exame_nome }}
+        </div>
+        <div>
+            <strong>Unidade:</strong>
+            {{ pedido.unidade_nome }}
+        </div>
+        <div>
+            <strong>Prioridade:</strong>
+            <span class="badge badge-{{ 'danger' if pedido.prioridade == 'P1' else 'warning' }}">{{ pedido.prioridade }}</span>
+        </div>
+        <div>
+            <strong>Status Atual:</strong>
+            <span class="badge badge-{{ 'success' if pedido.status_agendamento == 'Agendado' else 'warning' if pedido.status_agendamento == 'Em tentativa de contato' else 'secondary' }}">{{ pedido.status_agendamento or 'Pendente' }}</span>
+        </div>
+        <div>
+            <strong>Tentativas:</strong>
+            <span class="badge badge-info">{{ pedido.tentativas_contato }}/3</span>
+        </div>
     </div>
 
     <hr>
 
-    <h4>📋 Histórico de Contatos</h4>
-    {% if historico %}
-        <ul class="list-group mb-4">
-        {% for contato in historico %}
-            <li class="list-group-item">
-                <strong>{{ contato.data_hora }}</strong> - {{ contato.resultado }}
-                {% if contato.observacao %}
-                <br><small>{{ contato.observacao }}</small>
-                {% endif %}
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p class="text-muted">Nenhuma tentativa registrada ainda.</p>
-    {% endif %}
+    <div class="historico-section">
+        <h4>Histórico de Contatos</h4>
+        {% if historico %}
+            <ul class="list-group mb-4">
+            {% for contato in historico %}
+                <li class="list-group-item" style="padding-left: 30px;">
+                    <strong>{{ contato.data_hora }}</strong> - <span style="color: #764ba2; font-weight: 600;">{{ contato.resultado }}</span>
+                    {% if contato.observacao %}
+                    <br><small style="color: #666;">{{ contato.observacao }}</small>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted" style="margin: 0; font-style: italic;">Nenhuma tentativa registrada ainda.</p>
+        {% endif %}
+    </div>
 
     {% if pedido.tentativas_contato < 3 and pedido.status_agendamento not in ['Agendado', 'Cancelado por não contato'] %}
-    <h4>➕ Registrar nova tentativa</h4>
-    <form method="POST">
-        <div class="form-group">
-            <label>Resultado:</label>
-            <select name="resultado" class="form-control" required>
-                <option value="">Selecione...</option>
-                <option value="Atendeu">Atendeu</option>
-                <option value="Não atendeu">Não atendeu</option>
-                <option value="Número incorreto">Número incorreto</option>
-                <option value="Caixa postal">Caixa postal</option>
-            </select>
-        </div>
+    <div class="form-section">
+        <h4>➕ Registrar nova tentativa</h4>
+        <form method="POST">
+            <div class="form-group">
+                <label>Resultado da Chamada:</label>
+                <select name="resultado" class="form-control" required>
+                    <option value="">Selecione uma opção...</option>
+                    <option value="Atendeu">✓ Atendeu</option>
+                    <option value="Não atendeu">✗ Não atendeu</option>
+                    <option value="Número incorreto">⚠ Número incorreto</option>
+                    <option value="Caixa postal">📞 Caixa postal</option>
+                </select>
+            </div>
 
-        <div class="form-group">
-            <label>Observações:</label>
-            <textarea name="observacao" class="form-control" rows="3"></textarea>
-        </div>
+            <div class="form-group">
+                <label>Observações (opcional):</label>
+                <textarea name="observacao" class="form-control" rows="3" placeholder="Adicione notas sobre a tentativa de contato..."></textarea>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Registrar Tentativa</button>
-    </form>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary">Registrar Tentativa</button>
+                <a href="/exames_agendados" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
     {% else %}
     <div class="alert alert-info mt-4">
-        Este pedido já foi {{ pedido.status_agendamento.lower() }} ou atingiu o limite de tentativas.
+        <strong>ℹ️ Aviso:</strong> Este pedido já foi {{ pedido.status_agendamento.lower() if pedido.status_agendamento else 'processado' }} ou atingiu o limite de 3 tentativas de contato.
     </div>
     {% endif %}
 </div>

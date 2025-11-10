@@ -74,12 +74,26 @@
     margin-right: 10px;
 }
 
-.pedido-row {
+/* Estilos para linhas clicáveis da tabela */
+.clickable-row {
     cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
 }
 
-.pedido-row:hover {
-    background-color: #f8f9fa;
+.clickable-row:hover {
+    background-color: #e8f4f8;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-left-color: #007bff;
+    transform: translateX(2px);
+}
+
+.clickable-row:active {
+    background-color: #d4e8f0;
+}
+
+.pedido-row {
+    cursor: pointer;
 }
 
 .tentativas-progress {
@@ -179,6 +193,246 @@
 
 .modal-body tbody tr:hover {
     background-color: #f5f5f5;
+}
+
+/* ========== ESTILOS MODERNOS PARA TABELA LISTA ========== */
+
+#listaPedidos {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#listaPedidos .table {
+    background: white;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 0;
+    width: 100%;
+}
+
+#listaPedidos thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+}
+
+#listaPedidos thead th {
+    padding: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85em;
+    border: none;
+    vertical-align: middle;
+    text-align: left;
+}
+
+#listaPedidos tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#listaPedidos tbody tr:last-child {
+    border-bottom: none;
+}
+
+#listaPedidos tbody td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    color: #333;
+    font-size: 0.95em;
+    text-align: left;
+}
+
+#listaPedidos .clickable-row {
+    cursor: pointer;
+    position: relative;
+    border-left: 4px solid transparent;
+}
+
+#listaPedidos .clickable-row:hover {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+    border-left-color: #667eea;
+}
+
+#listaPedidos .clickable-row:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.1);
+}
+
+/* Coluna Paciente */
+#listaPedidos td:nth-child(1) {
+    font-weight: 500;
+    color: #333;
+    width: 22%;
+}
+
+#listaPedidos th:nth-child(1) {
+    width: 22%;
+}
+
+/* Coluna Exame */
+#listaPedidos td:nth-child(2) {
+    color: #555;
+    width: 25%;
+}
+
+#listaPedidos th:nth-child(2) {
+    width: 25%;
+}
+
+/* Coluna Prioridade (Badge) */
+#listaPedidos td:nth-child(3) {
+    text-align: center;
+    width: 12%;
+}
+
+#listaPedidos th:nth-child(3) {
+    text-align: center;
+    width: 12%;
+}
+
+#listaPedidos .badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    white-space: nowrap;
+}
+
+#listaPedidos .badge-danger {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+#listaPedidos .badge-warning {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+}
+
+#listaPedidos .badge-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+#listaPedidos .badge-success {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+}
+
+#listaPedidos .badge-secondary {
+    background: linear-gradient(135deg, #a8a8a8 0%, #6c6c6c 100%);
+    color: white;
+}
+
+/* Coluna Status */
+#listaPedidos td:nth-child(4) {
+    text-align: left;
+    width: 28%;
+}
+
+#listaPedidos th:nth-child(4) {
+    width: 28%;
+}
+
+#listaPedidos td:nth-child(4) .badge {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 8px 14px;
+    font-size: 0.75em;
+}
+
+/* Coluna Tentativas */
+#listaPedidos td:nth-child(5) {
+    text-align: center;
+    width: 13%;
+}
+
+#listaPedidos th:nth-child(5) {
+    text-align: center;
+    width: 13%;
+}
+
+.tentativas-progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tentativas-progress .badge {
+    min-width: 50px;
+}
+
+/* Responsivo para telas pequenas */
+@media (max-width: 768px) {
+    #listaPedidos thead {
+        font-size: 0.75em;
+    }
+
+    #listaPedidos thead th {
+        padding: 12px 8px;
+    }
+
+    #listaPedidos tbody td {
+        padding: 10px 8px;
+        font-size: 0.85em;
+    }
+
+    #listaPedidos .badge {
+        padding: 4px 8px;
+        font-size: 0.7em;
+    }
+
+    #listaPedidos td:nth-child(2) {
+        display: none;
+    }
+
+    #listaPedidos th:nth-child(2) {
+        display: none;
+    }
+}
+
+/* ========== ESTILOS MODERNOS PARA RESUMO MENSAL ========== */
+
+#resumoMensal {
+    animation: fadeIn 0.5s ease;
+}
+
+#resumoMensal .table {
+    border-radius: 8px;
+}
+
+#resumoMensal tbody tr {
+    transition: all 0.3s ease;
+}
+
+#resumoMensal tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+#resumoMensal .celula-prioridade span {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+#resumoMensal .celula-prioridade span:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.empty-state {
+    text-align: center;
 }
 
 /* Estilos para links nos blocos P1/P2 */

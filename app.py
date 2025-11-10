@@ -37,7 +37,7 @@ def exames_agendados():
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
 
-    # Buscar pedidos para lista
+    # Buscar pedidos para lista (apenas os com tentativas de contato iniciadas)
     cursor.execute("""
         SELECT 
             p.id,
@@ -50,6 +50,7 @@ def exames_agendados():
         FROM pedidos_regulacao p
         JOIN exames e ON p.exame_id = e.id
         WHERE p.status = 'Enviado para agendamento'
+        AND p.tentativas_contato >= 1
         ORDER BY 
             CASE p.prioridade 
                 WHEN 'P1' THEN 1 
@@ -95,7 +96,8 @@ def exames_agendados():
 
         dados[exame][mes_label][prioridade] = r["total"]
 
-    return render_template("exames_agendados.html", dados=dados)
+    # Passa também 'pedidos' para o template (lista filtrada por tentativas >= 1)
+    return render_template("exames_agendados.html", pedidos=pedidos, dados=dados)
 
 
 @app.route('/pedidos', methods=['GET', 'POST'])
@@ -683,6 +685,38 @@ def agendar_pedido(pedido_id):
     finally:
         cursor.close()
         conexao.close()
+
+@app.route('/exames-agendados')
+def exames_agendados_lista():
+    conexao = conectar()
+    cursor = conexao.cursor(dictionary=True)
+
+    cursor.execute("""
+       SELECT 
+            p.id AS pedido_id,
+            p.nome_paciente,
+            p.status_agendamento,
+            p.tentativas_contato,
+            e.nome AS exame_nome,
+            u.nome AS unidade_nome,
+            MAX(t.data_hora) AS ultima_tentativa,
+            COUNT(t.id) AS total_tentativas
+        FROM pedidos_regulacao p
+        JOIN exames e ON p.exame_id = e.id
+        JOIN unidades_saude u ON p.unidade_id = u.id
+        JOIN tentativas_contato t ON t.pedido_id = p.id
+        GROUP BY p.id, p.nome_paciente, p.status_agendamento, p.tentativas_contato, e.nome, u.nome
+        ORDER BY ultima_tentativa DESC;
+    """)
+    pedidos = cursor.fetchall()
+
+    # caso também tenha o resumo mensal
+    dados = carregar_resumo_mensal(cursor)  # mantenha seu método atual se tiver
+
+    cursor.close()
+    conexao.close()
+
+    return render_template('exames_agendados.html', pedidos=pedidos, dados=dados)
 
 
 if __name__ == '__main__':
