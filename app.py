@@ -556,13 +556,89 @@ def uploaded_exame(filename):
     # Serve arquivos da pasta de uploads de exames somente a partir do diretório definido
     return send_from_directory(UPLOAD_FOLDER, filename)
 
-@app.route('/api/pedidos/<int:pedido_id>')
-def get_pedido_detalhes(pedido_id):
+from flask import render_template, request, jsonify, redirect, url_for
+from datetime import datetime
+
+@app.route('/agendar/<int:pedido_id>', methods=['GET', 'POST'])
+def agendar_pedido(pedido_id):
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
 
     try:
-        # Buscar detalhes do pedido
+        # ------------------------------------------
+        # 🧩 Se for POST → registrar tentativa
+        # ------------------------------------------
+        if request.method == 'POST':
+            resultado = request.form.get('resultado')
+            observacao = request.form.get('observacao', '')
+            data_hora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            if not resultado:
+                return jsonify({'erro': 'Resultado é obrigatório'}), 400
+
+            # Buscar estado atual do pedido
+            cursor.execute("""
+                SELECT tentativas_contato, status_agendamento 
+                FROM pedidos_regulacao 
+                WHERE id = %s
+            """, (pedido_id,))
+            pedido = cursor.fetchone()
+
+            if not pedido:
+                return jsonify({'erro': 'Pedido não encontrado'}), 404
+
+            if pedido['tentativas_contato'] >= 3 or pedido['status_agendamento'] in ['Agendado', 'Cancelado por não contato']:
+                return jsonify({'erro': 'Pedido já finalizado ou limite de tentativas atingido'}), 400
+
+            # Registrar tentativa
+            cursor.execute("""
+                INSERT INTO tentativas_contato (pedido_id, data_hora, resultado, observacao)
+                VALUES (%s, %s, %s, %s)
+            """, (pedido_id, data_hora, resultado, observacao))
+
+            # Atualizar contagem e status
+            novas_tentativas = pedido['tentativas_contato'] + 1
+
+            if resultado == 'Atendeu':
+                novo_status = 'Agendado'
+            elif novas_tentativas >= 3 and resultado != 'Atendeu':
+                novo_status = 'Cancelado por não contato'
+            else:
+                novo_status = 'Em tentativa de contato'
+
+            cursor.execute("""
+                UPDATE pedidos_regulacao 
+                SET tentativas_contato = %s,
+                    status_agendamento = %s,
+                    data_agendamento = CASE 
+                        WHEN %s = 'Agendado' THEN %s
+                        ELSE NULL
+                    END,
+                    status = CASE
+                        WHEN %s = 'Agendado' THEN 'Agendado'
+                        WHEN %s = 'Cancelado por não contato' THEN 'Cancelado'
+                        ELSE status
+                    END
+                WHERE id = %s
+            """, (
+                novas_tentativas,
+                novo_status,
+                novo_status,
+                data_hora if novo_status == 'Agendado' else None,
+                novo_status,
+                novo_status,
+                pedido_id
+            ))
+
+            conexao.commit()
+            cursor.close()
+            conexao.close()
+
+            return redirect(url_for('agendar_pedido', pedido_id=pedido_id))
+
+        # ------------------------------------------
+        # 🧾 Se for GET → mostrar dados do pedido
+        # ------------------------------------------
         cursor.execute("""
             SELECT 
                 p.id,
@@ -584,128 +660,30 @@ def get_pedido_detalhes(pedido_id):
         """, (pedido_id,))
         
         pedido = cursor.fetchone()
-        
-        if not pedido:
-            return jsonify({'erro': 'Pedido não encontrado'}), 404
 
-        # Inicializar campos se não existirem
-        if pedido.get('status_agendamento') is None:
-            pedido['status_agendamento'] = 'Pendente'
-        if pedido.get('tentativas_contato') is None:
-            pedido['tentativas_contato'] = 0
+        if not pedido:
+            return render_template('erro.html', mensagem="Pedido não encontrado")
 
         # Buscar histórico de contatos
         cursor.execute("""
-            SELECT 
-                data_hora,
-                resultado,
-                observacao
+            SELECT data_hora, resultado, observacao
             FROM tentativas_contato
             WHERE pedido_id = %s
-            ORDER BY data_hora
+            ORDER BY data_hora DESC
         """, (pedido_id,))
-        
         historico = cursor.fetchall()
-        # Converter datetime para string ISO
-        for contato in historico:
-            if isinstance(contato['data_hora'], datetime):
-                contato['data_hora'] = contato['data_hora'].isoformat()
 
-        pedido['historico_contatos'] = historico
-
-        # Converter data_registro para string se for datetime
-        if isinstance(pedido.get('data_registro'), datetime):
-            pedido['data_registro'] = pedido['data_registro'].isoformat()
-
-        return jsonify(pedido)
+        return render_template('agendar.html', pedido=pedido, historico=historico)
 
     except Exception as e:
-        print("Erro ao buscar detalhes do pedido:", str(e))
-        return jsonify({'erro': f'Erro ao buscar detalhes: {str(e)}'}), 500
-
-    finally:
-        cursor.close()
-        conexao.close()
-
-@app.route('/api/registrar-contato', methods=['POST'])
-def registrar_contato():
-    dados = request.json
-    pedido_id = dados.get('pedido_id')
-    data_hora = dados.get('data_hora')
-    resultado = dados.get('resultado')
-    observacao = dados.get('observacao')
-
-    if not all([pedido_id, data_hora, resultado]):
-        return jsonify({'erro': 'Dados incompletos'}), 400
-
-    conexao = conectar()
-    cursor = conexao.cursor(dictionary=True)
-
-    try:
-        # Verificar estado atual do pedido
-        cursor.execute("""
-            SELECT tentativas_contato, status_agendamento 
-            FROM pedidos_regulacao 
-            WHERE id = %s
-        """, (pedido_id,))
-        
-        pedido = cursor.fetchone()
-        
-        if not pedido:
-            return jsonify({'erro': 'Pedido não encontrado'}), 404
-
-        if pedido['tentativas_contato'] >= 3 or pedido['status_agendamento'] in ['Agendado', 'Cancelado por não contato']:
-            return jsonify({'erro': 'Pedido já finalizado ou limite de tentativas atingido'}), 400
-
-        # Registrar tentativa
-        cursor.execute("""
-            INSERT INTO tentativas_contato (pedido_id, data_hora, resultado, observacao)
-            VALUES (%s, %s, %s, %s)
-        """, (pedido_id, data_hora, resultado, observacao))
-
-        # Atualizar contagem de tentativas
-        novas_tentativas = pedido['tentativas_contato'] + 1
-        novo_status = pedido['status_agendamento']
-
-        # Determinar novo status
-        if resultado == 'Atendeu':
-            novo_status = 'Agendado'
-        elif novas_tentativas >= 3 and resultado != 'Atendeu':
-            novo_status = 'Cancelado por não contato'
-        else:
-            novo_status = 'Em tentativa de contato'
-
-        # Atualizar pedido
-        cursor.execute("""
-            UPDATE pedidos_regulacao 
-            SET tentativas_contato = %s,
-                status_agendamento = %s,
-                data_agendamento = CASE 
-                    WHEN %s = 'Agendado' THEN %s
-                    ELSE NULL
-                END
-            WHERE id = %s
-        """, (novas_tentativas, novo_status, novo_status, data_hora if novo_status == 'Agendado' else None, pedido_id))
-
-        conexao.commit()
-        
-        return jsonify({
-            'mensagem': 'Tentativa registrada com sucesso',
-            'status_atualizado': novo_status in ['Agendado', 'Cancelado por não contato']
-        })
-
-    except Exception as e:
+        print("Erro ao processar agendamento:", str(e))
         conexao.rollback()
-        return jsonify({'erro': str(e)}), 500
+        return render_template('erro.html', mensagem=f"Erro: {str(e)}")
 
     finally:
         cursor.close()
         conexao.close()
 
-@app.route('/agendar/<int:pedido_id>')
-def agendar(pedido_id):
-    # Página dedicada para registro de tentativas/agendamento
-    return render_template('agendar.html', pedido_id=pedido_id)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True,host='0.0.0.0', port=5010)

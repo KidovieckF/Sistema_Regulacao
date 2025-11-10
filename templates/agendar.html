@@ -1,86 +1,65 @@
 {% extends "base.html" %}
-{% block title %}Agendamento - Pedido{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/exames_agendados.css') }}">
-{% endblock %}
+{% block title %}Agendar - {{ pedido.nome_paciente }}{% endblock %}
 
 {% block content %}
 <div class="container main-content">
     <div class="page-header">
-        <h2>Agendamento</h2>
-        <p id="subtitulo"></p>
+        <h2>📞 Agendamento de Exame</h2>
+        <p>Paciente: <strong>{{ pedido.nome_paciente }}</strong></p>
     </div>
 
-    <div id="conteudo-agendamento">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5>Dados do Paciente</h5>
-                <dl>
-                    <dt>Nome</dt>
-                    <dd id="ag-nome"></dd>
-                    <dt>Telefone</dt>
-                    <dd id="ag-telefone"></dd>
-                    <dt>Unidade</dt>
-                    <dd id="ag-unidade"></dd>
-                </dl>
-                <h5>Dados do Exame</h5>
-                <dl>
-                    <dt>Exame</dt>
-                    <dd id="ag-exame"></dd>
-                    <dt>Prioridade</dt>
-                    <dd id="ag-prioridade"></dd>
-                    <dt>Status</dt>
-                    <dd id="ag-status"></dd>
-                </dl>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-body">
-                <h5>Registrar Tentativas de Contato (até 3)</h5>
-                <div id="tentativas-list" class="mb-3"></div>
-
-                <form id="formNovaTentativa">
-                    <input type="hidden" id="ag-pedidoId">
-                    <div class="form-row">
-                        <div class="col-md-4 form-group">
-                            <label>Data e hora</label>
-                            <input type="datetime-local" class="form-control" id="ag-dataHora" required>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Resultado</label>
-                            <select class="form-control" id="ag-resultado" required>
-                                <option value="Atendeu">Atendeu</option>
-                                <option value="Não atendeu">Não atendeu</option>
-                                <option value="Número incorreto">Número incorreto</option>
-                                <option value="Caixa postal">Caixa postal</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>Observações</label>
-                            <input class="form-control" id="ag-observacao">
-                        </div>
-                    </div>
-                    <div class="form-group text-right">
-                        <button type="submit" class="btn btn-primary" id="ag-btnRegistrar">Registrar Tentativa</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
+    <div class="info-box">
+        <p><strong>Telefone:</strong> {{ pedido.telefone }}</p>
+        <p><strong>Exame:</strong> {{ pedido.exame_nome }}</p>
+        <p><strong>Unidade:</strong> {{ pedido.unidade_nome }}</p>
+        <p><strong>Prioridade:</strong> {{ pedido.prioridade }}</p>
+        <p><strong>Status atual:</strong> {{ pedido.status_agendamento or 'Pendente' }}</p>
+        <p><strong>Tentativas:</strong> {{ pedido.tentativas_contato }}/3</p>
     </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-    // Passar o pedido id via URL (rota /agendar/<id>)
-    {% if pedido_id is defined %}
-    const pedidoId = {{ pedido_id }};
+    <hr>
+
+    <h4>📋 Histórico de Contatos</h4>
+    {% if historico %}
+        <ul class="list-group mb-4">
+        {% for contato in historico %}
+            <li class="list-group-item">
+                <strong>{{ contato.data_hora }}</strong> - {{ contato.resultado }}
+                {% if contato.observacao %}
+                <br><small>{{ contato.observacao }}</small>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
     {% else %}
-    const pedidoId = null;
+        <p class="text-muted">Nenhuma tentativa registrada ainda.</p>
     {% endif %}
-</script>
-<script src="{{ url_for('static', filename='js/agendar.js') }}"></script>
+
+    {% if pedido.tentativas_contato < 3 and pedido.status_agendamento not in ['Agendado', 'Cancelado por não contato'] %}
+    <h4>➕ Registrar nova tentativa</h4>
+    <form method="POST">
+        <div class="form-group">
+            <label>Resultado:</label>
+            <select name="resultado" class="form-control" required>
+                <option value="">Selecione...</option>
+                <option value="Atendeu">Atendeu</option>
+                <option value="Não atendeu">Não atendeu</option>
+                <option value="Número incorreto">Número incorreto</option>
+                <option value="Caixa postal">Caixa postal</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Observações:</label>
+            <textarea name="observacao" class="form-control" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Registrar Tentativa</button>
+    </form>
+    {% else %}
+    <div class="alert alert-info mt-4">
+        Este pedido já foi {{ pedido.status_agendamento.lower() }} ou atingiu o limite de tentativas.
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
