@@ -5,48 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Gerenciador de Tarefas{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.socket.io/4.7.1/socket.io.min.js"></script>
     {% block extra_css %}{% endblock %}
 </head>
 
-<div id="confirmacaoModal" class="modal">
-    <div class="modal-conteudo">
-        <h3 id="modalTitulo">Confirmar ação</h3>
-        <p id="modalMensagem">Tem certeza que deseja continuar?</p>
-        <div class="modal-botoes">
-            <button id="modalCancelar" class="btn-cancelar">Cancelar</button>
-            <button id="modalConfirmar" class="btn-confirmar">Confirmar</button>
+<body>
+    <!-- Modal de confirmação -->
+    <div id="confirmacaoModal" class="modal">
+        <div class="modal-conteudo">
+            <h3 id="modalTitulo">Confirmar ação</h3>
+            <p id="modalMensagem">Tem certeza que deseja continuar?</p>
+            <div class="modal-botoes">
+                <button id="modalCancelar" class="btn-cancelar">Cancelar</button>
+                <button id="modalConfirmar" class="btn-confirmar">Confirmar</button>
+            </div>
         </div>
     </div>
-</div>
 
-<body>
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>📝 Regulação</h1>
+                <h1>Regulação</h1>
             </div>
             <ul class="nav-menu">
-                <li><a href="{{ url_for('login') }}" class="nav-link">Login</a></li>
-                <li><a href="{{ url_for('index') }}" class="nav-link">Início</a></li>
-                <li><a href="{{ url_for('adicionar') }}" class="nav-link">Adicionar</a></li>
+                {% if session.get('usuario') %}
+                    <li><span class="nav-link">Olá, {{ session['usuario'] }}</span></li>
+                {% endif %}
                 <li><a href="{{ url_for('sobre') }}" class="nav-link">Sobre</a></li>
+                <li><a href="{{ url_for('chat') }}" class="nav-link">Chat</a></li>
+                <li><a href="{{ url_for('recepcao_unidade') }}" class="nav-link">Recepção</a></li>
+                <li><a href="{{ url_for('listar_pedidos') }}" class="nav-link">Malote</a></li>
+                <li><a href="{{ url_for('regulacao') }}" class="nav-link">Regulação</a></li>
+                <li><a href="{{ url_for('exames_agendados') }}" class="nav-link">Exames</a></li>
+                <li><a href="{{ url_for('pesquisa_paciente') }}" class="nav-link">Pesquisa</a></li>
+                {% if session.get('usuario') %}
+                    <li><a href="{{ url_for('logout') }}" class="nav-link-logout">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="nav-link-login">Login</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>
 
+    <!-- Conteúdo principal -->
     <main class="main-content">
         <div class="container">
             {% block content %}{% endblock %}
         </div>
     </main>
 
+    <!-- Rodapé -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; {{ ano_atual }} - Aplicação Flask de Exemplo. Todos os direitos reservados.</p>
+            <p>&copy; {{ ano_atual }} - Sistema de Regulação. Todos os direitos reservados.</p>
         </div>
     </footer>
 
+    <!-- Script base -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    {% block extra_js %}{% endblock %}
+
+    <!-- Bloco para scripts extras específicos de cada página -->
+    {% block extra_js %}
+    {% endblock %}
 </body>
 </html>

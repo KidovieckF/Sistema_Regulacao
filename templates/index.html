@@ -4,14 +4,14 @@
 
 {% block content %}
 <div class="page-header">
-    <h2>Minhas Tarefas</h2>
+    <h2>Pós Consultas</h2>
     <div id="estatisticas" class="stats-container">
         <div class="stat-card">
             <span class="stat-label">Total</span>
             <span class="stat-value" id="stat-total">-</span>
         </div>
         <div class="stat-card">
-            <span class="stat-label">Concluídas</span>
+            <span class="stat-label">Enviadas</span>
             <span class="stat-value" id="stat-concluidas">-</span>
         </div>
         <div class="stat-card">
@@ -33,13 +33,13 @@
             <div class="task-actions">
                 <button class="btn btn-success btn-concluir" onclick="toggleTarefa({{ tarefa.id }})">
                     {% if tarefa.concluida %}
-                        ✓ Concluída
+                        ✓ Enviada
                     {% else %}
-                        ○ Marcar como concluída
+                        ○ Enviar
                     {% endif %}
                 </button>
                 <button class="btn btn-danger btn-deletar" onclick="deletarTarefa({{ tarefa.id }})">
-                    🗑️ Deletar
+                    Deletar
                 </button>
             </div>
         </div>
@@ -47,7 +47,7 @@
     </div>
 {% else %}
     <div class="empty-state">
-        <p>📭 Nenhuma tarefa cadastrada ainda.</p>
+        <p>Nenhuma tarefa cadastrada ainda.</p>
         <a href="{{ url_for('adicionar') }}" class="btn btn-primary">Adicionar primeira tarefa</a>
     </div>
 {% endif %}

@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Visão Geral dos Pedidos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exames_agendados.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container main-content">
+    <div class="page-header">
+        <h2>Pedidos de Exame</h2>
+        <div class="view-toggle">
+            <button class="btn btn-primary active" data-view="lista">Lista</button>
+            <button class="btn btn-secondary" data-view="resumo">Resumo Mensal</button>
+        </div>
+    </div>
+
+    <div id="listaPedidos" class="view-content">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Paciente</th>
+                    <th>Exame</th>
+                    <th>Prioridade</th>
+                    <th>Status</th>
+                    <th>Tentativas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in pedidos %}
+                <tr class="pedido-row" data-id="{{ pedido.id }}">
+                    <td>{{ pedido.nome_paciente }}</td>
+                    <td>{{ pedido.exame_nome }}</td>
+                    <td><span class="badge badge-{{ 'danger' if pedido.prioridade == 'P1' else 'warning' }}">{{ pedido.prioridade }}</span></td>
+                    <td>{{ pedido.status_agendamento }}</td>
+                    <td>
+                        <div class="tentativas-progress">
+                            <span class="badge badge-info">{{ pedido.tentativas_contato }}/3</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="resumoMensal" class="view-content" style="display: none;">
+    {% if dados %}
+    <table class="tabela-visao">
+        <thead>
+            <tr>
+                <th>Tipo de Exame</th>
+                {% set meses = [] %}
+                {% for exame, meses_dict in dados.items() %}
+                    {% for mes in meses_dict.keys() %}
+                        {% if mes not in meses %}
+                            {% set _ = meses.append(mes) %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+                {% for mes in meses|sort(reverse=True) %}
+                    <th>{{ mes }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for exame, meses_dict in dados.items() %}
+            <tr>
+                <td><strong>{{ exame }}</strong></td>
+                {% for mes in meses|sort %}
+                    {% set info = meses_dict.get(mes, {'P1':0, 'P2':0}) %}
+                    <td data-mes="{{ mes }}">
+                        <div class="celula-prioridade">
+                            <span class="p1">P1: {{ info.P1 }}</span><br>
+                            <span class="p2">P2: {{ info.P2 }}</span>
+                        </div>
+                    </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>Nenhum dado disponível ainda.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+<!-- Modal de Detalhes do Pedido -->
+<div class="modal fade" id="modalDetalhes" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Pedido</h5>
+                <div class="modal-actions">
+                    <a href="#" class="btn btn-success btn-sm" id="btnAbrirAgendar" style="margin-right:8px;">Agendar</a>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Informações do Paciente</h6>
+                        <dl>
+                            <dt>Nome:</dt>
+                            <dd id="paciente-nome"></dd>
+                            <dt>Telefone:</dt>
+                            <dd id="paciente-telefone"></dd>
+                            <dt>Unidade:</dt>
+                            <dd id="paciente-unidade"></dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Informações do Exame</h6>
+                        <dl>
+                            <dt>Exame:</dt>
+                            <dd id="exame-tipo"></dd>
+                            <dt>Prioridade:</dt>
+                            <dd id="exame-prioridade"></dd>
+                            <dt>Status:</dt>
+                            <dd id="exame-status"></dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="historico-contatos">
+                    <h6>Histórico de Contatos</h6>
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div id="lista-contatos">
+                        <!-- Preenchido via JavaScript -->
+                    </div>
+                </div>
+
+                <div class="painel-agendamento mt-4">
+                    <h6>Registrar Tentativa de Contato</h6>
+                    <form id="formContato" class="mt-3">
+                        <input type="hidden" id="pedidoId">
+                        <div class="form-row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Data e Hora</label>
+                                    <input type="datetime-local" class="form-control" id="dataHora" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Resultado</label>
+                                    <select class="form-control" id="resultado" required>
+                                        <option value="Atendeu">Atendeu</option>
+                                        <option value="Não atendeu">Não atendeu</option>
+                                        <option value="Número incorreto">Número incorreto</option>
+                                        <option value="Caixa postal">Caixa postal</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Observações</label>
+                                    <textarea class="form-control" id="observacao"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group text-right">
+                            <button type="submit" class="btn btn-primary" id="btnRegistrar">Registrar Tentativa</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/exames_agendados.js') }}"></script>
+{% endblock %}

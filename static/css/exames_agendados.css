@@ -1,0 +1,202 @@
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 2% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 95%;
+    max-width: 1200px;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.modal-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0 5px;
+}
+
+/* Estilos para botões na tabela */
+.tabela-pedidos .btn-agendar {
+    white-space: nowrap;
+    padding: 0.25rem 0.5rem;
+}
+
+.tabela-pedidos td {
+    vertical-align: middle;
+}
+
+/* Hover na linha da tabela */
+.tabela-pedidos tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+/* Estilos para a nova interface de agendamento */
+.view-toggle {
+    margin-bottom: 20px;
+}
+
+.view-toggle button {
+    margin-right: 10px;
+}
+
+.pedido-row {
+    cursor: pointer;
+}
+
+.pedido-row:hover {
+    background-color: #f8f9fa;
+}
+
+.tentativas-progress {
+    text-align: center;
+}
+
+.tentativas-progress .badge {
+    font-size: 0.9em;
+}
+
+.historico-contatos {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #dee2e6;
+}
+
+.contato-item {
+    background-color: #f8f9fa;
+}
+
+.contato-item small {
+    color: #6c757d;
+}
+
+.progress {
+    height: 10px;
+}
+
+.painel-agendamento {
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.painel-agendamento.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 0.4em 0.6em;
+    border-radius: 4px;
+    font-size: 0.85em;
+    display: inline-block;
+}
+
+.status-pendente {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status-em-contato {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.status-agendado {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.status-cancelado {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.modal-close:hover {
+    color: #000;
+}
+
+.modal-body {
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: calc(90vh - 100px); /* altura do modal menos header */
+}
+
+.modal-body table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.modal-body thead {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.modal-body th,
+.modal-body td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-body tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Estilos para links nos blocos P1/P2 */
+.celula-prioridade span {
+    display: inline-block;
+    padding: 2px 5px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+
+.celula-prioridade span:hover {
+    background-color: rgba(0,0,0,0.1);
+}
+
+.celula-prioridade .p1 {
+    color: #d32f2f;
+}
+
+.celula-prioridade .p2 {
+    color: #1976d2;
+}

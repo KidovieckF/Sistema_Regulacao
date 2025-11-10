@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Regulação Médica{% endblock %}
+
+{% block content %}
+<div class="container main-content">
+    <div class="page-header">
+        <h2>⚕️ Painel do Médico Regulador</h2>
+        <p>Visualize os pedidos encaminhados pela triagem, separados por tipo de regulação.</p>
+    </div>
+
+    <!-- Abas -->
+    <div class="tabs">
+        <button class="tab-button active" data-tab="cross">Cross / Estadual</button>
+        <button class="tab-button" data-tab="municipio">Município</button>
+    </div>
+
+    <!-- 🟦 Aba CROSS / ESTADUAL -->
+    <div id="tab-cross" class="tab-content active">
+        {% if cross %}
+        <table class="tabela-pedidos">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Exame</th>
+                    <th>Prioridade</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in cross %}
+                <!-- Linha principal -->
+                <tr class="linha-pedido" data-id="{{ p.id }}">
+                    <td>{{ p.nome_paciente }}</td>
+                    <td>{{ p.exame_nome }}</td>
+                    <td>{{ p.prioridade }}</td>
+                    <td>{{ p.status }}</td>
+                </tr>
+
+                <!-- Linha detalhada -->
+                <tr class="detalhes-pedido" id="detalhe-{{ p.id }}">
+                    <td colspan="4">
+                        <div class="detalhe-box">
+                            <p><strong>Protocolo:</strong> {{ p.protocolo }}</p>
+                            <p><strong>Unidade:</strong> {{ p.unidade_nome }}</p>
+                            <p><strong>Data do Pedido:</strong> {{ p.data_registro.strftime('%d/%m/%Y') }}</p>
+
+                            {% if p.altura or p.peso %}
+                            <p><strong>Altura:</strong> {{ p.altura or "-" }} cm</p>
+                            <p><strong>Peso:</strong> {{ p.peso or "-" }} kg</p>
+                            {% endif %}
+
+                            {% if p.observacoes %}
+                            <p><strong>Obs.:</strong> {{ p.observacoes }}</p>
+                            {% endif %}
+
+                            {% if p.anexo %}
+                            <p><strong>Anexo:</strong> <a href="{{ p.anexo }}" target="_blank">Visualizar PDF</a> <span class="anexo-attached-badge">Anexo</span></p>
+                            {% endif %}
+
+                            <form class="form-acao" method="POST">
+                                <input type="hidden" name="pedido_id" value="{{ p.id }}">
+                                <input type="hidden" name="acao" value="">
+
+                                <!-- Campo de observação (oculto por padrão) -->
+                                <div class="motivo-reprova" style="display: none;">
+                                    <label>Motivo da reprovação:</label>
+                                    <textarea name="motivo" rows="3" placeholder="Digite o motivo..." required></textarea>
+                                    <div class="motivo-botoes">
+                                        <button type="button" class="btn btn-cancelar-motivo">Cancelar</button>
+                                        <button type="submit" data-acao="reprovar" class="btn btn-secondary">Confirmar reprovação</button>
+                                    </div>
+                                </div>
+
+                                <!-- Botões principais -->
+                                <div class="botoes-acoes">
+                                    <button type="submit" data-acao="aprovar" class="btn btn-primary btn-full">✔️ Aprovar</button>
+                                    <button type="button" class="btn btn-secondary btn-reprovar">❌ Reprovar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><p>Nenhum pedido estadual encaminhado ainda.</p></div>
+        {% endif %}
+    </div>
+
+    <!-- 🟩 Aba MUNICÍPIO -->
+    <div id="tab-municipio" class="tab-content">
+        {% if municipio %}
+        <table class="tabela-pedidos">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Exame</th>
+                    <th>Prioridade</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in municipio %}
+                <tr class="linha-pedido" data-id="{{ p.id }}">
+                    <td>{{ p.nome_paciente }}</td>
+                    <td>{{ p.exame_nome }}</td>
+                    <td>{{ p.prioridade }}</td>
+                    <td>{{ p.status }}</td>
+                </tr>
+
+                <tr class="detalhes-pedido" id="detalhe-{{ p.id }}">
+                    <td colspan="4">
+                        <div class="detalhe-box">
+                            <p><strong>Protocolo:</strong> {{ p.protocolo }}</p>
+                            <p><strong>Unidade:</strong> {{ p.unidade_nome }}</p>
+                            <p><strong>Data do Pedido:</strong> {{ p.data_registro.strftime('%d/%m/%Y') }}</p>
+
+                            {% if p.altura or p.peso %}
+                            <p><strong>Altura:</strong> {{ p.altura or "-" }} cm</p>
+                            <p><strong>Peso:</strong> {{ p.peso or "-" }} kg</p>
+                            {% endif %}
+
+                            {% if p.observacoes %}
+                            <p><strong>Obs.:</strong> {{ p.observacoes }}</p>
+                            {% endif %}
+
+                                {% if p.anexo %}
+                                <p><strong>Anexo:</strong> <a href="{{ p.anexo }}" target="_blank">Visualizar PDF</a> <span class="anexo-attached-badge">Anexo</span></p>
+                                {% endif %}
+
+                            <form class="form-acao" method="POST">
+                                <input type="hidden" name="pedido_id" value="{{ p.id }}">
+                                <input type="hidden" name="acao" value="">
+
+                                <div class="motivo-reprova" style="display: none;">
+                                    <label>Motivo da reprovação:</label>
+                                    <textarea name="motivo" rows="3" placeholder="Digite o motivo..." required></textarea>
+                                    <div class="motivo-botoes">
+                                        <button type="button" class="btn btn-cancelar-motivo">Cancelar</button>
+                                        <button type="submit" data-acao="reprovar" class="btn btn-secondary">Confirmar reprovação</button>
+                                    </div>
+                                </div>
+
+                                <div class="botoes-acoes">
+                                    <button type="submit" data-acao="aprovar" class="btn btn-primary btn-full">✔️ Aprovar</button>
+                                    <button type="button" class="btn btn-secondary btn-reprovar">❌ Reprovar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><p>Nenhum pedido municipal encaminhado ainda.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/regulacao.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Pedidos Reprovados{% endblock %}
+
+{% block content %}
+<div class="container main-content">
+    <div class="page-header">
+        <h2>Pedidos Reprovados</h2>
+        <p>Visualize os pedidos que foram recusados pela regulação médica.</p>
+    </div>
+
+    {% if reprovados %}
+    <table class="tabela-pedidos">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Exame</th>
+                <th>Prioridade</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in reprovados %}
+            <tr class="linha-pedido" data-id="{{ p.id }}">
+                <td>{{ p.nome_paciente }}</td>
+                <td>{{ p.exame_nome }}</td>
+                <td>{{ p.prioridade }}</td>
+                <td>{{ p.status }}</td>
+            </tr>
+            <tr class="detalhes-pedido" id="detalhe-{{ p.id }}">
+                <td colspan="4">
+                    <div class="detalhe-box">
+                        <p><strong>Protocolo:</strong> {{ p.protocolo }}</p>
+                        <p><strong>Unidade:</strong> {{ p.unidade_nome }}</p>
+                        <p><strong>Data do Pedido:</strong> {{ p.data_registro.strftime('%d/%m/%Y') }}</p>
+                        {% if p.altura or p.peso %}
+                        <p><strong>Altura:</strong> {{ p.altura or "-" }} cm</p>
+                        <p><strong>Peso:</strong> {{ p.peso or "-" }} kg</p>
+                        {% endif %}
+                        {% if p.observacoes %}
+                        <p><strong>Observações:</strong> {{ p.observacoes }}</p>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>Nenhum pedido foi reprovado até o momento.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const linhas = document.querySelectorAll(".linha-pedido");
+    linhas.forEach(linha => {
+        linha.addEventListener("click", () => {
+            const id = linha.dataset.id;
+            const detalhe = document.getElementById(`detalhe-${id}`);
+            detalhe.classList.toggle("ativo");
+        });
+    });
+});
+</script>
+{% endblock %}

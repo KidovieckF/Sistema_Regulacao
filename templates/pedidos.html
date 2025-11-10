@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Pedidos de Exame{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('pedidos_reprovados') }}" class="notificacao-quadrado" title="Ver pedidos reprovados">
+    <span class="icone-carat">❗</span>
+</a>
+
+<div class="container main-content">
+    <div class="page-header">
+        <h2>Pedidos de Exame</h2>
+        <p>Lista de pedidos registrados pelas unidades de saúde, aguardando regulação.</p>
+    </div>
+
+    {% if pedidos %}
+    <table class="tabela-pedidos">
+        <thead>
+            <tr>
+                <th>Nome do Paciente</th>
+                <th>Exame</th>
+                <th>Prioridade</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pedidos %}
+            <tr class="linha-pedido {% if p.prioridade == 'P1' %}prioridade-alta{% endif %}" data-id="{{ p.id }}">
+                <td>{{ p.nome_paciente or "Não informado" }}</td>
+                <td>{{ p.exame_nome }}</td>
+                <td>{{ p.prioridade }}</td>
+                <td>{{ p.status }}</td>
+            </tr>
+            <tr class="detalhes-pedido" id="detalhes-{{ p.id }}">
+                <td colspan="4">
+                    <div class="detalhes-conteudo">
+                        <p><strong>Protocolo:</strong> {{ p.protocolo }}</p>
+                        <p><strong>Data de Registro:</strong> {{ p.data_registro.strftime('%d/%m/%Y') }}</p>
+                        <p><strong>Unidade:</strong> {{ p.unidade_nome }}</p>
+                        {% if p.altura or p.peso %}
+                        <p><strong>Altura:</strong> {{ p.altura or "-" }} cm</p>
+                        <p><strong>Peso:</strong> {{ p.peso or "-" }} kg</p>
+                        {% endif %}
+                        {% if p.observacoes %}
+                        <p><strong>Observações:</strong> {{ p.observacoes }}</p>
+                        {% endif %}
+                        {% if p.anexo %}
+                        <p><strong>Dependências:</strong> <a href="{{ p.anexo }}" target="_blank">Visualizar PDF</a> <span class="anexo-attached-badge">Anexo</span></p>
+                        {% endif %}
+
+                        <form method="POST" class="form-separacao">
+                            <input type="hidden" name="pedido_id" value="{{ p.id }}">
+                            <input type="hidden" name="acao" value="atualizar_separacao">
+                            <label>Separação:</label>
+                            <select name="separacao" class="form-control">
+                                <option value="">Selecione...</option>
+                                <option value="Cross/Estadual" {% if p.separacao == 'Cross/Estadual' %}selected{% endif %}>Cross/Estadual</option>
+                                <option value="Município" {% if p.separacao == 'Município' %}selected{% endif %}>Município</option>
+                            </select>
+                        </form>
+
+                        <form method="POST" class="form-enviar-regulacao">
+                            <input type="hidden" name="pedido_id" value="{{ p.id }}">
+                            <input type="hidden" name="acao" value="enviar_regulacao">
+                            <button type="submit" class="btn btn-primary btn-full">📤 Mandar para Regulação</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>Nenhum pedido foi registrado ainda.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/malote.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".linha-pedido").forEach(linha => {
+        linha.addEventListener("click", () => {
+            const id = linha.dataset.id;
+            const detalhes = document.getElementById(`detalhes-${id}`);
+            detalhes.classList.toggle("ativo");
+        });
+    });
+});
+</script>
+{% endblock %}

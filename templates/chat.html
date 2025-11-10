@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Chat em Tempo Real{% endblock %}
+
+{% block content %}
+<div class="container main-content">
+    <div id="chat-container" class="chat-container">
+        <div id="chat-messages" class="chat-messages">
+            {% for msg in mensagens %}
+                <div class="chat-message {% if msg.usuario == usuario %}own-message{% else %}other-message{% endif %}">
+                    <div class="chat-bubble">
+                        <strong>{{ msg.usuario }}:</strong> {{ msg.mensagem }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+
+        <div class="chat-input-container">
+            <input id="chat-input" class="form-control" type="text" placeholder="Digite sua mensagem...">
+            <button id="btn-enviar" class="btn btn-primary">Enviar</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Passa o usuário logado para o JS -->
+<script>
+    const usuario = "{{ usuario }}";
+</script>
+<script src="https://cdn.socket.io/4.7.1/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+
+{% endblock %}

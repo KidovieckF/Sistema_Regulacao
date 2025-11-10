@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Agendamento - Pedido{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exames_agendados.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container main-content">
+    <div class="page-header">
+        <h2>Agendamento</h2>
+        <p id="subtitulo"></p>
+    </div>
+
+    <div id="conteudo-agendamento">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>Dados do Paciente</h5>
+                <dl>
+                    <dt>Nome</dt>
+                    <dd id="ag-nome"></dd>
+                    <dt>Telefone</dt>
+                    <dd id="ag-telefone"></dd>
+                    <dt>Unidade</dt>
+                    <dd id="ag-unidade"></dd>
+                </dl>
+                <h5>Dados do Exame</h5>
+                <dl>
+                    <dt>Exame</dt>
+                    <dd id="ag-exame"></dd>
+                    <dt>Prioridade</dt>
+                    <dd id="ag-prioridade"></dd>
+                    <dt>Status</dt>
+                    <dd id="ag-status"></dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5>Registrar Tentativas de Contato (até 3)</h5>
+                <div id="tentativas-list" class="mb-3"></div>
+
+                <form id="formNovaTentativa">
+                    <input type="hidden" id="ag-pedidoId">
+                    <div class="form-row">
+                        <div class="col-md-4 form-group">
+                            <label>Data e hora</label>
+                            <input type="datetime-local" class="form-control" id="ag-dataHora" required>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>Resultado</label>
+                            <select class="form-control" id="ag-resultado" required>
+                                <option value="Atendeu">Atendeu</option>
+                                <option value="Não atendeu">Não atendeu</option>
+                                <option value="Número incorreto">Número incorreto</option>
+                                <option value="Caixa postal">Caixa postal</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>Observações</label>
+                            <input class="form-control" id="ag-observacao">
+                        </div>
+                    </div>
+                    <div class="form-group text-right">
+                        <button type="submit" class="btn btn-primary" id="ag-btnRegistrar">Registrar Tentativa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Passar o pedido id via URL (rota /agendar/<id>)
+    {% if pedido_id is defined %}
+    const pedidoId = {{ pedido_id }};
+    {% else %}
+    const pedidoId = null;
+    {% endif %}
+</script>
+<script src="{{ url_for('static', filename='js/agendar.js') }}"></script>
+{% endblock %}

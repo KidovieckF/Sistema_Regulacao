@@ -63,10 +63,10 @@ async function toggleTarefa(tarefaId) {
             
             // Atualizar texto do botão
             if (resultado.concluida) {
-                botao.innerHTML = '✓ Concluída';
+                botao.innerHTML = '✓ Enviada';
                 mostrarNotificacao('Tarefa marcada como concluída!', 'sucesso');
             } else {
-                botao.innerHTML = '○ Marcar como concluída';
+                botao.innerHTML = '○ Enviar';
                 mostrarNotificacao('Tarefa desmarcada', 'info');
             }
             
